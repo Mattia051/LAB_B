@@ -1,3 +1,9 @@
+/*
+ * Progetto: The Knife
+ * Autori:
+ * - Mattia Polato (Matricola: 757923, Sede: VA)
+ * - Andrea Luigi Mariani (Matricola: 757369, Sede: VA)
+ */
 package theknife;
 
 import theknife.server.DatabaseManager;
@@ -5,7 +11,21 @@ import theknife.common.Ristorante;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * 
+ * La classe TestDatabaseFiltri esegue test interattivi di integrazione sul database.
+ * Verifica in particolare:
+ * 1. La ricerca dei ristoranti per sola Città/Località.
+ * 2. La ricerca avanzata combinando Città/Località e tipo di cucina.
+ * 3. La ricerca case-insensitive per garantire la tolleranza al maiuscolo/minuscolo.
+ */
 public class TestDatabaseFiltri {
+    /**
+     * Entry point per l'esecuzione del test interattivo.
+     * Richiede le credenziali del database PostgreSQL da tastiera.
+     * 
+     * @param args Argomenti da riga di comando.
+     */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.println("=== Test Filtri Database ===");

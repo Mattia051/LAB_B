@@ -1,3 +1,9 @@
+/*
+ * Progetto: The Knife
+ * Autori:
+ * - Mattia Polato (Matricola: 757923, Sede: VA)
+ * - Andrea Luigi Mariani (Matricola: 757369, Sede: VA)
+ */
 package theknife;
 
 import theknife.client.ClientTK;
@@ -9,7 +15,22 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
 
+/**
+ * 
+ * La classe TestIntegrazioneGenerale esegue un test end-to-end completo (integrazione).
+ * 1. Simula l'inserimento delle credenziali DB a terminale per avviare il ServerTK in un thread daemon.
+ * 2. Avvia un'istanza reale di ClientTK.
+ * 3. Tenta la connessione via socket al server sulla porta 12346.
+ * 4. Invia una richiesta di ricerca per i ristoranti e verifica la ricezione dei dati dal DB.
+ * 5. Si disconnette correttamente e chiude l'ambiente di test.
+ */
 public class TestIntegrazioneGenerale {
+    /**
+     * Entry point per l'esecuzione del test d'integrazione generale.
+     * 
+     * @param args Argomenti da riga di comando.
+     */
+    @SuppressWarnings("unchecked")
     public static void main(String[] args) {
         System.out.println("=== Inizio Test Integrazione Generale (Socket + DB) ===");
 

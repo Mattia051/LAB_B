@@ -1,5 +1,9 @@
 # Manuale Tecnico: The Knife
 
+**Autori del Progetto:**
+* **Mattia Polato** (Matricola: 757923 - Sede: Varese)
+* **Andrea Luigi Mariani** (Matricola: 757369 - Sede: Varese)
+
 ---
 
 ## 1. Analisi dei Requisiti
@@ -112,7 +116,7 @@ erDiagram
 ```
 
 ### Schema Relazionale (DDL SQL)
-Il database è implementato in PostgreSQL tramite lo script [schema.sql](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/schema.sql), con i seguenti vincoli di integrità:
+Il database è implementato in PostgreSQL tramite lo script [schema.sql](schema.sql), con i seguenti vincoli di integrità:
 * **Chiavi Primarie (PK)** e **Chiavi Esterne (FK)** per garantire la coerenza tra le entità.
 * Vincolo `CHECK (ruolo IN ('cliente', 'ristoratore'))` sulla tabella `utenti`.
 * Vincolo `CHECK (stelle >= 1 AND stelle <= 5)` sulla tabella `recensioni` per limitare il punteggio delle valutazioni.
@@ -143,18 +147,18 @@ L'applicazione segue un'architettura **Client-Server distribuita a tre livelli (
 ### Design Patterns Applicati
 
 1. **Model-View-Controller (MVC) concettuale**:
-   * **Model**: Rappresentato dalle classi POJO serializzabili nel package `theknife.common` ([Utente.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/main/java/theknife/common/Utente.java), [Ristorante.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/main/java/theknife/common/Ristorante.java), [Recensione.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/main/java/theknife/common/Recensione.java)).
-   * **View**: Composta dalle classi grafiche Swing del package `theknife.client` ([TheKnifeGUI.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/main/java/theknife/client/TheKnifeGUI.java), [ClientDashboard.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/main/java/theknife/client/ClientDashboard.java), [RestaurateurDashboard.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/main/java/theknife/client/RestaurateurDashboard.java)).
-   * **Controller**: Implementato lato client da [ClientTK.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/main/java/theknife/client/ClientTK.java) (che invia i comandi di rete) e lato server da [ClientHandler.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/main/java/theknife/server/ClientHandler.java) (che riceve e instrada le richieste verso il database).
+   * **Model**: Rappresentato dalle classi POJO serializzabili nel package `theknife.common` ([Utente.java](src/main/java/theknife/common/Utente.java), [Ristorante.java](src/main/java/theknife/common/Ristorante.java), [Recensione.java](src/main/java/theknife/common/Recensione.java)).
+   * **View**: Composta dalle classi grafiche Swing del package `theknife.client` ([TheKnifeGUI.java](src/main/java/theknife/client/TheKnifeGUI.java), [ClientDashboard.java](src/main/java/theknife/client/ClientDashboard.java), [RestaurateurDashboard.java](src/main/java/theknife/client/RestaurateurDashboard.java)).
+   * **Controller**: Implementato lato client da [ClientTK.java](src/main/java/theknife/client/ClientTK.java) (che invia i comandi di rete) e lato server da [ClientHandler.java](src/main/java/theknife/server/ClientHandler.java) (che riceve e instrada le richieste verso il database).
 
 2. **Data Transfer Object (DTO)**:
-   * Le classi [Richiesta.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/main/java/theknife/common/Richiesta.java) e [Risposta.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/main/java/theknife/common/Risposta.java) agiscono come contenitori di dati serializzati per standardizzare e isolare il protocollo di comunicazione di rete, evitando di esporre dettagli di basso livello della connessione socket alle viste.
+   * Le classi [Richiesta.java](src/main/java/theknife/common/Richiesta.java) e [Risposta.java](src/main/java/theknife/common/Risposta.java) agiscono come contenitori di dati serializzati per standardizzare e isolare il protocollo di comunicazione di rete, evitando di esporre dettagli di basso livello della connessione socket alle viste.
 
 3. **Active Object / Thread-per-Message (Gestione della concorrenza)**:
-   * [ServerTK.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/main/java/theknife/server/ServerTK.java) delega ogni nuova connessione client a una nuova istanza di [ClientHandler.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/main/java/theknife/server/ClientHandler.java) eseguita all'interno di un thread indipendente (`new Thread(handler).start()`). Questo assicura che un'operazione lenta di un utente (es. una query pesante al database) non blocchi gli altri utenti connessi.
+   * [ServerTK.java](src/main/java/theknife/server/ServerTK.java) delega ogni nuova connessione client a una nuova istanza di [ClientHandler.java](src/main/java/theknife/server/ClientHandler.java) eseguita all'interno di un thread indipendente (`new Thread(handler).start()`). Questo assicura che un'operazione lenta di un utente (es. una query pesante al database) non blocchi gli altri utenti connessi.
 
 4. **Data Access Object (DAO) / Database Manager**:
-   * La classe [DatabaseManager.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/main/java/theknife/server/DatabaseManager.java) centralizza l'accesso al database. Tutte le query SQL e l'apertura delle connessioni JDBC sono incapsulate al suo interno, nascondendo la complessità di SQL al resto dell'applicazione server.
+   * La classe [DatabaseManager.java](src/main/java/theknife/server/DatabaseManager.java) centralizza l'accesso al database. Tutte le query SQL e l'apertura delle connessioni JDBC sono incapsulate al suo interno, nascondendo la complessità di SQL al resto dell'applicazione server.
 
 ---
 
@@ -343,9 +347,9 @@ La persistenza dei dati è gestita da PostgreSQL. Per connettersi al database da
 L'interfaccia utente è interamente programmata in **Java Swing**:
 * È stato configurato il Look and Feel **Nimbus** all'avvio dell'applicazione per garantire un aspetto moderno ed uniforme su tutti i sistemi operativi.
 * L'applicazione adatta dinamicamente le viste a seconda del ruolo dell'utente loggato (`ruolo` in tabella `utenti`):
-  * **Ospite**: Accede a [GuestDashboard.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/main/java/theknife/client/GuestDashboard.java) con diritti di sola consultazione e ricerca dei ristoranti.
-  * **Cliente**: Accede a [ClientDashboard.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/main/java/theknife/client/ClientDashboard.java), abilitando la scrittura e gestione delle recensioni e la lista dei preferiti.
-  * **Ristoratore**: Accede a [RestaurateurDashboard.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/main/java/theknife/client/RestaurateurDashboard.java), da cui può registrare nuovi locali e rispondere direttamente al feedback dei clienti.
+  * **Ospite**: Accede a [GuestDashboard.java](src/main/java/theknife/client/GuestDashboard.java) con diritti di sola consultazione e ricerca dei ristoranti.
+  * **Cliente**: Accede a [ClientDashboard.java](src/main/java/theknife/client/ClientDashboard.java), abilitando la scrittura e gestione delle recensioni e la lista dei preferiti.
+  * **Ristoratore**: Accede a [RestaurateurDashboard.java](src/main/java/theknife/client/RestaurateurDashboard.java), da cui può registrare nuovi locali e rispondere direttamente al feedback dei clienti.
 
 ---
 
@@ -353,18 +357,18 @@ L'interfaccia utente è interamente programmata in **Java Swing**:
 
 Per garantire la robustezza e la corretta integrazione dei componenti del sistema, sono stati definiti diversi scenari di test (disponibili nel package `theknife` all'interno della cartella `src/test/java`):
 
-1. **Test del Modello Utente** ([TestUtente.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/test/java/theknife/TestUtente.java)):
+1. **Test del Modello Utente** ([TestUtente.java](src/test/java/theknife/TestUtente.java)):
    * Valida la corretta cifratura a una via delle password (algoritmo SHA-256).
    * Verifica l'autenticazione delle credenziali (esiti positivi/negativi).
    * Testa il corretto flusso di **serializzazione/deserializzazione** dell'oggetto `Utente` per garantirne l'integrità durante il trasferimento di rete.
 
-2. **Test dei Filtri Database** ([TestDatabaseFiltri.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/test/java/theknife/TestDatabaseFiltri.java)):
+2. **Test dei Filtri Database** ([TestDatabaseFiltri.java](src/test/java/theknife/TestDatabaseFiltri.java)):
    * Verifica le query di ricerca dei ristoranti sul database PostgreSQL.
    * Controlla il comportamento della ricerca case-insensitive e parziale (`ILIKE` in SQL).
    * Testa la combinazione di più filtri di ricerca (Località + Cucina).
 
-3. **Test del Protocollo di Rete** ([TestComunicazione.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/test/java/theknife/TestComunicazione.java)):
+3. **Test del Protocollo di Rete** ([TestComunicazione.java](src/test/java/theknife/TestComunicazione.java)):
    * Simula l'invio e la ricezione di pacchetti serializzati `Richiesta` e `Risposta` senza necessitare di una rete attiva, facendo uso di pipe di I/O in-memory (`PipedInputStream` e `PipedOutputStream`).
 
-4. **Test di Integrazione Generale** ([TestIntegrazioneGenerale.java](file:///C:/Users/Mattia/OneDrive/Desktop/BACKUP%20LAB_B/The-Knife/src/test/java/theknife/TestIntegrazioneGenerale.java)):
+4. **Test di Integrazione Generale** ([TestIntegrazioneGenerale.java](src/test/java/theknife/TestIntegrazioneGenerale.java)):
    * Esegue un test end-to-end simulando l'avvio del server in un thread separato (configurato programmando input fittizi), la connessione reale del client via Sockets e l'esecuzione di una query sul database reale, validando l'intero ciclo di vita di una richiesta client-server.

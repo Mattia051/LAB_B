@@ -1,9 +1,29 @@
+/*
+ * Progetto: The Knife
+ * Autori:
+ * - Mattia Polato (Matricola: 757923, Sede: VA)
+ * - Andrea Luigi Mariani (Matricola: 757369, Sede: VA)
+ */
 package theknife;
 
 import theknife.common.Utente;
 import java.io.*;
 
+/**
+ * 
+ * La classe TestUtente esegue test di unità sulla classe Utente.
+ * In particolare verifica:
+ * 1. La corretta cifratura a una via SHA-256 della password.
+ * 2. La corrispondenza della password corretta ed errata.
+ * 3. La serializzazione e deserializzazione dell'oggetto Utente per verificare 
+ *    che mantenga l'integrità dei dati per il transito di rete.
+ */
 public class TestUtente {
+    /**
+     * Entry point per l'esecuzione del test.
+     * 
+     * @param args Argomenti da riga di comando.
+     */
     public static void main(String[] args) {
         System.out.println("--- Inizio Test Modello Utente ---");
 

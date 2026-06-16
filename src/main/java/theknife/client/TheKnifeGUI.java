@@ -1,3 +1,9 @@
+/*
+ * Progetto: The Knife
+ * Autori:
+ * - Mattia Polato (Matricola: 757923, Sede: VA)
+ * - Andrea Luigi Mariani (Matricola: 757369, Sede: VA)
+ */
 package theknife.client;
 
 import theknife.common.Risposta;
@@ -5,21 +11,33 @@ import theknife.common.Utente;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
+ * 
  * La classe TheKnifeGUI rappresenta l'interfaccia grafica principale dell'applicazione "The Knife".
- * Gestisce la schermata di accesso, registrazione e reindirizzamento alle dashboard specifiche
- * per clienti e ristoratori.
+ * Gestisce le schermate iniziali di accesso (Login), registrazione (Sign up) 
+ * e l'accesso come ospite anonimo, indirizzando ciascun utente alle rispettive 
+ * dashboard di pertinenza.
  */
 public class TheKnifeGUI extends JFrame {
 
+    /** Riferimento al manager di comunicazione client di rete. */
     private ClientTK client;
+    
+    /** Campo di testo per l'inserimento dell'username. */
     private JTextField usernameField;
+    
+    /** Campo per l'inserimento della password (mascherata). */
     private JPasswordField passwordField;
+    
+    /** Area di testo per la visualizzazione di messaggi informativi o di errore. */
     private JEditorPane messageArea;
 
+    /**
+     * Costruisce ed inizializza la schermata principale di accesso del client.
+     * 
+     * @param client L'istanza ClientTK per inviare richieste di rete.
+     */
     public TheKnifeGUI(ClientTK client) {
         this.client = client;
         setTitle("The Knife - Accesso");
@@ -101,6 +119,11 @@ public class TheKnifeGUI extends JFrame {
         guestButton.addActionListener(e -> new GuestDashboard(client).setVisible(true));
     }
 
+    /**
+     * Applica uno stile grafico comune ad un JButton (sfondo, font, dimensioni).
+     * 
+     * @param button Il pulsante da stilizzare.
+     */
     private void styleButton(JButton button) {
         button.setBackground(new Color(70, 130, 180));
         button.setForeground(Color.WHITE);
@@ -110,6 +133,11 @@ public class TheKnifeGUI extends JFrame {
         button.setPreferredSize(new Dimension(150, 40));
     }
 
+    /**
+     * Esegue l'azione di login prelevando i dati dai campi di testo.
+     * Cifra la password e interroga il server: in caso di successo indirizza
+     * alla dashboard corretta a seconda del ruolo dell'utente loggato.
+     */
     private void performLogin() {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
@@ -132,6 +160,10 @@ public class TheKnifeGUI extends JFrame {
         }
     }
 
+    /**
+     * Mostra una finestra di dialogo (JDialog) pop-up per la registrazione 
+     * di un nuovo utente, acquisendo i dati anagrafici, domicilio e ruolo.
+     */
     private void showRegisterDialog() {
         JDialog registerDialog = new JDialog(this, "Registra Nuovo Utente", true);
         registerDialog.setSize(450, 450);

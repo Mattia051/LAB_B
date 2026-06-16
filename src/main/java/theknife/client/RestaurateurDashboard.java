@@ -1,3 +1,9 @@
+/*
+ * Progetto: The Knife
+ * Autori:
+ * - Mattia Polato (Matricola: 757923, Sede: VA)
+ * - Andrea Luigi Mariani (Matricola: 757369, Sede: VA)
+ */
 package theknife.client;
 
 import theknife.common.Recensione;
@@ -9,11 +15,30 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
+/**
+ * 
+ * RestaurateurDashboard rappresenta l'interfaccia grafica (JFrame) per gli utenti 
+ * loggati con il ruolo di "ristoratore".
+ * Consente al proprietario ristoratore di inserire e gestire i propri ristoranti,
+ * visualizzare tutte le recensioni ad essi collegate con relativo punteggio e 
+ * inserire una risposta ufficiale ad ogni commento.
+ */
 public class RestaurateurDashboard extends JFrame {
+    /** Riferimento al manager di comunicazione client di rete. */
     private ClientTK client;
+    
+    /** Riferimento all'utente ristoratore attualmente loggato. */
     private Utente loggedInUser;
+    
+    /** Area di visualizzazione HTML centrale per l'output grafico. */
     private JEditorPane displayArea;
 
+    /**
+     * Costruisce ed inizializza l'interfaccia grafica della dashboard del ristoratore.
+     * 
+     * @param client L'istanza ClientTK per inviare richieste di rete.
+     * @param user   L'utente ristoratore loggato.
+     */
     public RestaurateurDashboard(ClientTK client, Utente user) {
         this.client = client;
         this.loggedInUser = user;
@@ -69,6 +94,11 @@ public class RestaurateurDashboard extends JFrame {
         displayArea.setText("<html><body style='font-family: sans-serif; padding: 10px;'><h2>Benvenuto, " + loggedInUser.getNome() + "!</h2><p>Seleziona un'opzione dal menu.</p></body></html>");
     }
 
+    /**
+     * Applica uno stile grafico comune ad un JButton.
+     * 
+     * @param button Il pulsante da stilizzare.
+     */
     private void styleButton(JButton button) {
         button.setBackground(new Color(70, 130, 180));
         button.setForeground(Color.WHITE);
@@ -77,6 +107,10 @@ public class RestaurateurDashboard extends JFrame {
         button.setPreferredSize(new Dimension(200, 40));
     }
 
+    /**
+     * Invia una richiesta al server per recuperare i ristoranti registrati a nome 
+     * del ristoratore loggato ed elenca le loro informazioni nella schermata principale.
+     */
     private void visualizzaMieiRistoranti() {
         Risposta res = client.getMieiRistoranti(loggedInUser.getUsername());
         List<Ristorante> miei = (List<Ristorante>) res.getDati();
@@ -96,6 +130,10 @@ public class RestaurateurDashboard extends JFrame {
         displayArea.setText(sb.toString());
     }
 
+    /**
+     * Mostra una finestra pop-up interattiva con un modulo per acquisire i dati 
+     * di un nuovo ristorante ed invia la richiesta di salvataggio al server.
+     */
     private void aggiungiRistorante() {
         JTextField nameField = new JTextField();
         JTextField addressField = new JTextField();
@@ -122,6 +160,10 @@ public class RestaurateurDashboard extends JFrame {
         }
     }
 
+    /**
+     * Permette al ristoratore di scegliere uno dei suoi ristoranti e visualizza 
+     * l'elenco di tutte le recensioni ad esso associate, evidenziando le risposte già fornite.
+     */
     private void visualizzaRecensioniRistorante() {
         Risposta resMiei = client.getMieiRistoranti(loggedInUser.getUsername());
         List<Ristorante> miei = (List<Ristorante>) resMiei.getDati();
@@ -146,6 +188,10 @@ public class RestaurateurDashboard extends JFrame {
         }
     }
 
+    /**
+     * Richiede l'ID di una recensione e il testo del messaggio per inviare 
+     * una risposta ufficiale al server.
+     */
     private void rispondiARecensione() {
         String idStr = JOptionPane.showInputDialog(this, "ID Recensione:");
         if (idStr != null) {
@@ -156,6 +202,9 @@ public class RestaurateurDashboard extends JFrame {
         }
     }
 
+    /**
+     * Effettua la disconnessione ed apre la finestra di login principale.
+     */
     private void eseguiLogout() {
         dispose();
         new TheKnifeGUI(client).setVisible(true);

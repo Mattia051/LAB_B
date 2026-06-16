@@ -1,8 +1,15 @@
 === Dati Autori del Progetto The Knife ===
 
-Cognome: [INSERISCI COGNOME]
-Nome: [INSERISCI NOME]
-Matricola: [INSERISCI MATRICOLA]
-Sede: [VA / CO] (Varese o Como)
+Autore 1 (Project Manager):
+Cognome: Polato
+Nome: Mattia
+Matricola: 757923
+Sede: VA (Varese)
 
-Repository GitHub di Progetto: [INSERISCI LINK GITHUB]
+Autore 2:
+Cognome: Mariani
+Nome: Andrea Luigi
+Matricola: 757369
+Sede: VA (Varese)
+
+Repository GitHub di Progetto: [INSERISCI LINK GITHUB SE APPLICABILE]

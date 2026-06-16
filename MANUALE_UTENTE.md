@@ -1,6 +1,8 @@
 # Manuale Utente: The Knife
 
-Benvenuto nella guida utente dell'applicazione **The Knife**. Questo manuale illustra come installare, avviare e utilizzare le funzionalità della piattaforma per la recensione e la gestione dei ristoranti.
+**Autori del Progetto:**
+* **Mattia Polato** (Matricola: 757923 - Sede: Varese)
+* **Andrea Luigi Mariani** (Matricola: 757369 - Sede: Varese)
 
 ---
 

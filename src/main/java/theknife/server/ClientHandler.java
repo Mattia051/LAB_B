@@ -1,3 +1,9 @@
+/*
+ * Progetto: The Knife
+ * Autori:
+ * - Mattia Polato (Matricola: 757923, Sede: VA)
+ * - Andrea Luigi Mariani (Matricola: 757369, Sede: VA)
+ */
 package theknife.server;
 
 import theknife.common.Richiesta;
@@ -12,15 +18,35 @@ import java.net.Socket;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 
+ * La classe ClientHandler implementa Runnable ed è responsabile della gestione 
+ * della sessione di comunicazione con un singolo client connesso al server.
+ * Legge gli oggetti Richiesta ricevuti in rete, esegue le relative operazioni 
+ * sul database richiamando il DatabaseManager e restituisce una Risposta al client.
+ */
 public class ClientHandler implements Runnable {
+    /** Canale di comunicazione Socket verso il client. */
     private Socket clientSocket;
+    
+    /** Riferimento al manager del database condiviso per le operazioni SQL. */
     private DatabaseManager db;
 
+    /**
+     * Costruisce un gestore di connessione per un singolo client.
+     * 
+     * @param socket Il socket del client.
+     * @param db     Il gestore del database.
+     */
     public ClientHandler(Socket socket, DatabaseManager db) {
         this.clientSocket = socket;
         this.db = db;
     }
 
+    /**
+     * Ciclo principale di ascolto ed elaborazione dei messaggi del client.
+     * Esegue la lettura asincrona degli oggetti serializzati dal flusso di I/O.
+     */
     @Override
     public void run() {
         try (
@@ -47,6 +73,15 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Riconosce il tipo di richiesta ricevuta ed esegue l'operazione opportuna, 
+     * scrivendo e inviando l'oggetto di risposta serializzato al client.
+     * 
+     * @param req L'oggetto Richiesta inviato dal client.
+     * @param out Lo stream di output associato al socket per la risposta.
+     * @throws Exception se si verifica un errore durante l'I/O o l'elaborazione.
+     */
+    @SuppressWarnings("unchecked")
     private void gestisciRichiesta(Richiesta req, ObjectOutputStream out) throws Exception {
         Risposta res;
         switch (req.getTipo()) {

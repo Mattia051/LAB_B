@@ -1,3 +1,9 @@
+/*
+ * Progetto: The Knife
+ * Autori:
+ * - Mattia Polato (Matricola: 757923, Sede: VA)
+ * - Andrea Luigi Mariani (Matricola: 757369, Sede: VA)
+ */
 package theknife.server;
 
 import theknife.common.Recensione;
@@ -7,29 +13,62 @@ import theknife.common.Utente;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * 
+ * La classe DatabaseManager gestisce tutte le operazioni di persistenza 
+ * verso il database relazionale PostgreSQL tramite JDBC.
+ * Si occupa dell'apertura delle connessioni, dell'esecuzione di query sicure 
+ * (tramite PreparedStatement) e dell'inserimento, aggiornamento o rimozione 
+ * di record relativi a utenti, ristoranti, recensioni e preferiti.
+ */
 public class DatabaseManager {
+    /** URL JDBC per la connessione al database PostgreSQL. */
     private String url;
+    
+    /** Username di accesso al DBMS. */
     private String user;
+    
+    /** Password di accesso al DBMS. */
     private String password;
 
+    /**
+     * Costruisce il gestore del database inizializzando l'URL JDBC del DBMS PostgreSQL.
+     * Tenta inoltre di caricare esplicitamente il driver PostgreSQL.
+     * 
+     * @param host     Indirizzo host del database server (es. localhost).
+     * @param user     Username del database.
+     * @param password Password del database.
+     */
     public DatabaseManager(String host, String user, String password) {
         this.url = "jdbc:postgresql://" + host + ":5432/theknife";
         this.user = user;
         this.password = password;
 
         try {
-            // Carica il driver (opzionale nelle versioni recenti di JDBC)
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
             System.err.println("[ERRORE] Driver PostgreSQL non trovato.");
         }
     }
 
+    /**
+     * Stabilisce ed apre una nuova connessione con il database PostgreSQL.
+     * 
+     * @return L'oggetto Connection aperto.
+     * @throws SQLException se si verifica un errore durante l'apertura.
+     */
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(url, user, password);
     }
 
+    /**
+     * Registra un nuovo utente nel database eseguendo una query di INSERT.
+     * 
+     * @param u L'oggetto Utente da salvare (con password già cifrata).
+     * @return true se l'inserimento avviene con successo, false altrimenti.
+     */
     public boolean registraUtente(Utente u) {
         String sql = "INSERT INTO utenti (username, password, nome, cognome, data_nascita, domicilio, ruolo) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -48,6 +87,14 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Esegue l'autenticazione dell'utente confrontando lo username e la password in chiaro.
+     * Effettua la cifratura a runtime per confrontarla con l'hash presente nel DB.
+     * 
+     * @param username       Username inserito dall'utente.
+     * @param passwordChiara Password inserita in chiaro dall'utente.
+     * @return L'oggetto Utente loggato con i suoi dati in caso di successo, null altrimenti.
+     */
     public Utente login(String username, String passwordChiara) {
         String sql = "SELECT * FROM utenti WHERE username = ?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -58,11 +105,11 @@ public class DatabaseManager {
                         rs.getString("nome"),
                         rs.getString("cognome"),
                         rs.getString("username"),
-                        rs.getString("password"), // password cifrata
+                        rs.getString("password"), 
                         rs.getString("data_nascita"),
                         rs.getString("domicilio"),
                         rs.getString("ruolo"),
-                        true // già cifrata
+                        true 
                 );
                 if (u.verificaPassword(passwordChiara)) {
                     return u;
@@ -78,7 +125,13 @@ public class DatabaseManager {
         return null;
     }
 
-    public List<Ristorante> cercaRistoranti(java.util.Map<String, String> filtri) {
+    /**
+     * Esegue una ricerca avanzata dei ristoranti applicando molteplici filtri in AND.
+     * 
+     * @param filtri Mappa chiave-valore contenente i filtri ("nome", "location", "cucina", "fasciaPrezzo", "servizi").
+     * @return Una List di oggetti Ristorante corrispondenti ai criteri di ricerca.
+     */
+    public List<Ristorante> cercaRistoranti(Map<String, String> filtri) {
         List<Ristorante> risultati = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM ristoranti WHERE 1=1");
         List<String> params = new ArrayList<>();
@@ -135,6 +188,13 @@ public class DatabaseManager {
         return risultati;
     }
 
+    /**
+     * Esegue una ricerca base dei ristoranti per città (location) e tipologia di cucina.
+     * 
+     * @param location Località geografica.
+     * @param cucina   Tipo di cucina.
+     * @return Una List di oggetti Ristorante trovati.
+     */
     public List<Ristorante> cercaRistoranti(String location, String cucina) {
         java.util.Map<String, String> f = new java.util.HashMap<>();
         f.put("location", location);
@@ -142,6 +202,12 @@ public class DatabaseManager {
         return cercaRistoranti(f);
     }
 
+    /**
+     * Inserisce una nuova recensione scritta da un utente nel database.
+     * 
+     * @param r Oggetto Recensione da memorizzare.
+     * @return true se inserita correttamente, false altrimenti.
+     */
     public boolean aggiungiRecensione(Recensione r) {
         String sql = "INSERT INTO recensioni (username_utente, nome_ristorante, stelle, testo) VALUES (?, ?, ?, ?)";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -157,6 +223,13 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Consente ad un ristoratore di rispondere ad una specifica recensione identificata dal suo ID.
+     * 
+     * @param idRecensione ID della recensione a cui rispondere.
+     * @param risposta     Il testo del messaggio di risposta.
+     * @return true se aggiornata correttamente, false altrimenti.
+     */
     public boolean rispondiRecensione(int idRecensione, String risposta) {
         String sql = "UPDATE recensioni SET risposta = ? WHERE id = ?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -170,6 +243,16 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Permette ad un cliente di modificare una propria recensione inserita in precedenza per un ristorante.
+     * Azzera automaticamente la risposta precedentemente fornita dal ristoratore.
+     * 
+     * @param username       Username dell'utente autore.
+     * @param nomeRistorante Nome del locale recensito.
+     * @param stelle         Nuovo valore in stelle.
+     * @param testo          Nuovo commento testuale.
+     * @return true se aggiornata con successo, false altrimenti.
+     */
     public boolean modificaRecensione(String username, String nomeRistorante, int stelle, String testo) {
         String sql = "UPDATE recensioni SET stelle = ?, testo = ?, risposta = NULL WHERE username_utente = ? AND nome_ristorante = ?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -185,6 +268,13 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Permette ad un cliente di cancellare una propria recensione dal database.
+     * 
+     * @param username       Username dell'utente.
+     * @param nomeRistorante Nome del ristorante di cui eliminare la recensione.
+     * @return true se eliminata con successo, false altrimenti.
+     */
     public boolean cancellaRecensione(String username, String nomeRistorante) {
         String sql = "DELETE FROM recensioni WHERE username_utente = ? AND nome_ristorante = ?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -198,6 +288,12 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Recupera l'elenco di tutte le recensioni inserite da un determinato utente.
+     * 
+     * @param username Username dell'utente.
+     * @return Una List di oggetti Recensione.
+     */
     public List<Recensione> getRecensioniUtente(String username) {
         List<Recensione> recensioni = new ArrayList<>();
         String sql = "SELECT * FROM recensioni WHERE username_utente = ?";
@@ -220,6 +316,12 @@ public class DatabaseManager {
         return recensioni;
     }
 
+    /**
+     * Registra un nuovo ristorante nel database (inserito da un ristoratore).
+     * 
+     * @param r L'oggetto Ristorante da salvare.
+     * @return true se inserito correttamente, false altrimenti.
+     */
     public boolean aggiungiRistorante(Ristorante r) {
         String sql = "INSERT INTO ristoranti (nome, indirizzo, location, fascia_prezzo, cucina, longitude, latitude, telefono, url, website_url, award, green_star, servizi, descrizione, proprietario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -246,6 +348,11 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Recupera l'elenco completo di tutti i ristoranti memorizzati nel database.
+     * 
+     * @return Una List di tutti gli oggetti Ristorante.
+     */
     public List<Ristorante> getTuttiRistoranti() {
         List<Ristorante> risultati = new ArrayList<>();
         String sql = "SELECT * FROM ristoranti";
@@ -276,6 +383,13 @@ public class DatabaseManager {
         return risultati;
     }
 
+    /**
+     * Inserisce un'associazione preferito collegando un utente ad un ristorante.
+     * 
+     * @param username       Username dell'utente cliente.
+     * @param nomeRistorante Nome del ristorante da salvare nei preferiti.
+     * @return true se l'inserimento è riuscito, false altrimenti.
+     */
     public boolean aggiungiPreferito(String username, String nomeRistorante) {
         String sql = "INSERT INTO preferiti (username_utente, nome_ristorante) VALUES (?, ?)";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -289,6 +403,13 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Rimuove un'associazione preferito per un determinato utente ed un ristorante.
+     * 
+     * @param username       Username dell'utente cliente.
+     * @param nomeRistorante Nome del ristorante da rimuovere dai preferiti.
+     * @return true se la rimozione è riuscita, false altrimenti.
+     */
     public boolean rimuoviPreferito(String username, String nomeRistorante) {
         String sql = "DELETE FROM preferiti WHERE username_utente = ? AND nome_ristorante = ?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -302,6 +423,12 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Recupera l'elenco dei nomi dei ristoranti preferiti inseriti da un utente.
+     * 
+     * @param username Username dell'utente cliente.
+     * @return Una List di stringhe rappresentanti i nomi dei ristoranti preferiti.
+     */
     public List<String> getPreferiti(String username) {
         List<String> preferiti = new ArrayList<>();
         String sql = "SELECT nome_ristorante FROM preferiti WHERE username_utente = ?";
@@ -317,6 +444,12 @@ public class DatabaseManager {
         return preferiti;
     }
 
+    /**
+     * Recupera l'elenco di tutte le recensioni relative ad un singolo ristorante.
+     * 
+     * @param nomeRistorante Nome del ristorante.
+     * @return Una List di oggetti Recensione associati al locale.
+     */
     public List<Recensione> getRecensioni(String nomeRistorante) {
         List<Recensione> recensioni = new ArrayList<>();
         String sql = "SELECT * FROM recensioni WHERE nome_ristorante = ?";
@@ -339,6 +472,12 @@ public class DatabaseManager {
         return recensioni;
     }
 
+    /**
+     * Recupera l'elenco dei ristoranti di proprietà inseriti da un determinato ristoratore.
+     * 
+     * @param username Username del ristoratore proprietario.
+     * @return Una List di oggetti Ristorante associati al proprietario.
+     */
     public List<Ristorante> getRistorantiProprietario(String username) {
         List<Ristorante> risultati = new ArrayList<>();
         String sql = "SELECT * FROM ristoranti WHERE proprietario = ?";

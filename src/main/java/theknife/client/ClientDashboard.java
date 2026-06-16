@@ -1,3 +1,9 @@
+/*
+ * Progetto: The Knife
+ * Autori:
+ * - Mattia Polato (Matricola: 757923, Sede: VA)
+ * - Andrea Luigi Mariani (Matricola: 757369, Sede: VA)
+ */
 package theknife.client;
 
 import theknife.common.Recensione;
@@ -9,11 +15,30 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
+/**
+ * 
+ * ClientDashboard rappresenta la finestra principale (JFrame) per gli utenti loggati 
+ * con il ruolo di "cliente".
+ * Fornisce l'accesso a funzionalità interattive come la ricerca dei ristoranti,
+ * la gestione della lista dei propri preferiti, e l'aggiunta, modifica ed 
+ * eliminazione delle proprie recensioni.
+ */
 public class ClientDashboard extends JFrame {
+    /** Riferimento al manager di comunicazione client di rete. */
     private ClientTK client;
+    
+    /** Riferimento all'utente cliente attualmente loggato nel sistema. */
     private Utente loggedInUser;
+    
+    /** Area di testo HTML per la visualizzazione dinamica dei contenuti grafici. */
     private JEditorPane displayArea;
 
+    /**
+     * Costruisce ed inizializza l'interfaccia grafica della dashboard del cliente.
+     * 
+     * @param client L'istanza ClientTK per inviare richieste di rete.
+     * @param user   L'utente loggato.
+     */
     public ClientDashboard(ClientTK client, Utente user) {
         this.client = client;
         this.loggedInUser = user;
@@ -85,6 +110,11 @@ public class ClientDashboard extends JFrame {
         displayArea.setText("<html><body style='font-family: sans-serif; padding: 10px;'><h2>Benvenuto, " + loggedInUser.getNome() + "!</h2><p>Seleziona un'opzione dal menu.</p></body></html>");
     }
 
+    /**
+     * Applica uno stile grafico comune ad un JButton (colore, font, dimensioni).
+     * 
+     * @param button Il pulsante da stilizzare.
+     */
     private void styleButton(JButton button) {
         button.setBackground(new Color(70, 130, 180));
         button.setForeground(Color.WHITE);
@@ -93,6 +123,12 @@ public class ClientDashboard extends JFrame {
         button.setPreferredSize(new Dimension(200, 40));
     }
 
+    /**
+     * Stampa all'interno dell'area centrale i risultati della ricerca dei ristoranti in formato HTML.
+     * 
+     * @param ristoranti Lista di ristoranti da mostrare.
+     * @param titolo      Titolo dell'elenco.
+     */
     private void mostraListaRistoranti(List<Ristorante> ristoranti, String titolo) {
         StringBuilder sb = new StringBuilder();
         sb.append("<html><body style='font-family: sans-serif; padding: 10px;'>");
@@ -114,6 +150,10 @@ public class ClientDashboard extends JFrame {
         displayArea.setText(sb.toString());
     }
 
+    /**
+     * Richiede i parametri (Nome, Stelle, Testo) all'utente tramite pop-up dialog
+     * ed invia una richiesta di aggiunta recensione al server.
+     */
     private void aggiungiRecensione() {
         String restaurantName = JOptionPane.showInputDialog(this, "Nome Ristorante:");
         if (restaurantName == null || restaurantName.isEmpty()) return;
@@ -129,6 +169,10 @@ public class ClientDashboard extends JFrame {
         JOptionPane.showMessageDialog(this, res.getMessaggio());
     }
 
+    /**
+     * Recupera le recensioni scritte dall'utente corrente, ne richiede la selezione, 
+     * acquisisce le modifiche e invia la richiesta di aggiornamento al server.
+     */
     private void modificaRecensione() {
         Risposta resList = client.getRecensioniUtente(loggedInUser.getUsername());
         List<Recensione> userReviews = (List<Recensione>) resList.getDati();
@@ -150,6 +194,10 @@ public class ClientDashboard extends JFrame {
         }
     }
 
+    /**
+     * Recupera le recensioni dell'utente, ne richiede la selezione ed invia 
+     * una richiesta di cancellazione al server per il ristorante scelto.
+     */
     private void eliminaRecensione() {
         Risposta resList = client.getRecensioniUtente(loggedInUser.getUsername());
         List<Recensione> userReviews = (List<Recensione>) resList.getDati();
@@ -168,6 +216,10 @@ public class ClientDashboard extends JFrame {
         }
     }
 
+    /**
+     * Invia una richiesta al server per recuperare le recensioni del cliente loggato 
+     * e le visualizza graficamente in HTML (comprese le risposte dei ristoratori).
+     */
     private void visualizzaMieRecensioni() {
         Risposta res = client.getRecensioniUtente(loggedInUser.getUsername());
         List<Recensione> userReviews = (List<Recensione>) res.getDati();
@@ -183,6 +235,10 @@ public class ClientDashboard extends JFrame {
         displayArea.setText(sb.toString());
     }
 
+    /**
+     * Richiede il nome di un locale ed invia la richiesta di aggiunta ai preferiti 
+     * per l'utente loggato.
+     */
     private void aggiungiPreferito() {
         String name = JOptionPane.showInputDialog(this, "Nome ristorante:");
         if (name != null) {
@@ -191,6 +247,9 @@ public class ClientDashboard extends JFrame {
         }
     }
 
+    /**
+     * Richiede il nome di un locale ed invia la richiesta di rimozione dai preferiti.
+     */
     private void rimuoviPreferito() {
         String name = JOptionPane.showInputDialog(this, "Nome ristorante:");
         if (name != null) {
@@ -199,6 +258,9 @@ public class ClientDashboard extends JFrame {
         }
     }
 
+    /**
+     * Recupera l'elenco dei ristoranti preferiti dal server e li elenca nell'area centrale.
+     */
     private void visualizzaPreferiti() {
         Risposta res = client.getPreferiti(loggedInUser.getUsername());
         List<String> prefs = (List<String>) res.getDati();
@@ -209,6 +271,10 @@ public class ClientDashboard extends JFrame {
         displayArea.setText(sb.toString());
     }
 
+    /**
+     * Mostra un pannello form per l'acquisizione dei filtri di ricerca avanzata,
+     * invia i criteri al server ed elenca i ristoranti corrispondenti.
+     */
     private void cercaRistoranti() {
         JTextField nameField = new JTextField();
         JTextField locField = new JTextField();
@@ -237,6 +303,9 @@ public class ClientDashboard extends JFrame {
         }
     }
 
+    /**
+     * Effettua la disconnessione ritornando alla finestra di login iniziale.
+     */
     private void eseguiLogout() {
         dispose();
         new TheKnifeGUI(client).setVisible(true);

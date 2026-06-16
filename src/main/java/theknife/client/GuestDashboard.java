@@ -1,3 +1,9 @@
+/*
+ * Progetto: The Knife
+ * Autori:
+ * - Mattia Polato (Matricola: 757923, Sede: VA)
+ * - Andrea Luigi Mariani (Matricola: 757369, Sede: VA)
+ */
 package theknife.client;
 
 import theknife.common.Recensione;
@@ -8,13 +14,33 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
+/**
+ * 
+ * GuestDashboard rappresenta l'interfaccia grafica (JFrame) per gli utenti 
+ * ospiti (non registrati).
+ * Consente la consultazione delle informazioni dei ristoranti tramite 
+ * ricerca per località o tramite ricerca avanzata (cucina, prezzo, servizi), 
+ * e la visualizzazione anonima delle recensioni con relative risposte dei ristoratori.
+ */
 public class GuestDashboard extends JFrame {
 
+    /** Riferimento al manager di comunicazione client di rete. */
     private ClientTK client;
+    
+    /** Area di testo HTML centrale per l'elenco dei ristoranti o delle recensioni. */
     private JEditorPane displayArea;
+    
+    /** Casella di testo per inserire la località di ricerca. */
     private JTextField searchField;
+    
+    /** Menu a tendina per scegliere la tipologia di ricerca (Località / Avanzata). */
     private JComboBox<String> searchTypeComboBox;
 
+    /**
+     * Costruisce ed inizializza l'interfaccia grafica della dashboard dell'ospite.
+     * 
+     * @param client L'istanza ClientTK per inviare richieste di rete.
+     */
     public GuestDashboard(ClientTK client) {
         this.client = client;
 
@@ -86,12 +112,24 @@ public class GuestDashboard extends JFrame {
         displayArea.setText("<html><body style='font-family: sans-serif; padding: 10px;'><p>Benvenuto! Usa il menu a sinistra per esplorare i ristoranti.</p></body></html>");
     }
 
+    /**
+     * Costruttore secondario per avviare la dashboard dell'ospite pre-impostando
+     * una località di ricerca iniziale.
+     * 
+     * @param client          L'istanza ClientTK per inviare richieste di rete.
+     * @param defaultLocation Località geografica di partenza da cercare.
+     */
     public GuestDashboard(ClientTK client, String defaultLocation) {
         this(client);
         searchField.setText(defaultLocation);
         performSearch();
     }
 
+    /**
+     * Applica uno stile grafico comune ad un JButton (colore, font, dimensioni).
+     * 
+     * @param button Il pulsante da stilizzare.
+     */
     private void styleButton(JButton button) {
         button.setBackground(new Color(70, 130, 180));
         button.setForeground(Color.WHITE);
@@ -100,6 +138,9 @@ public class GuestDashboard extends JFrame {
         button.setPreferredSize(new Dimension(180, 40));
     }
 
+    /**
+     * Esegue la ricerca in base al tipo selezionato (Località o Ricerca Avanzata).
+     */
     private void performSearch() {
         String type = (String) searchTypeComboBox.getSelectedItem();
         String term = searchField.getText().trim();
@@ -108,11 +149,15 @@ public class GuestDashboard extends JFrame {
             Risposta res = client.cercaRistoranti(term, "");
             mostraRisultati((List<Ristorante>) res.getDati());
         } else {
-            // Ricerca combinata (Popup)
             performCombinedSearch();
         }
     }
 
+    /**
+     * Disegna all'interno della schermata centrale l'elenco dei ristoranti trovati in HTML.
+     * 
+     * @param risultati Lista di ristoranti.
+     */
     private void mostraRisultati(List<Ristorante> risultati) {
         StringBuilder sb = new StringBuilder();
         sb.append("<html><body style='font-family: sans-serif; padding: 10px;'><h2>Risultati:</h2>");
@@ -131,6 +176,12 @@ public class GuestDashboard extends JFrame {
         displayArea.setText(sb.toString());
     }
 
+    /**
+     * Recupera le recensioni per un dato ristorante e le elenca nell'area centrale
+     * (comprese le risposte dei ristoratori proprietari).
+     * 
+     * @param restaurantName Nome del ristorante di cui visualizzare le recensioni.
+     */
     private void displayReviewsForRestaurant(String restaurantName) {
         Risposta res = client.getRecensioni(restaurantName);
         List<Recensione> reviews = (List<Recensione>) res.getDati();
@@ -149,6 +200,10 @@ public class GuestDashboard extends JFrame {
         displayArea.setText(sb.toString());
     }
 
+    /**
+     * Mostra un pannello pop-up di ricerca avanzata con più campi e invia 
+     * i parametri del form per interrogare il server.
+     */
     private void performCombinedSearch() {
         JTextField nameField = new JTextField();
         JTextField locField = new JTextField();

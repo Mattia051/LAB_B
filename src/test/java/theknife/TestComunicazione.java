@@ -1,3 +1,9 @@
+/*
+ * Progetto: The Knife
+ * Autori:
+ * - Mattia Polato (Matricola: 757923, Sede: VA)
+ * - Andrea Luigi Mariani (Matricola: 757369, Sede: VA)
+ */
 package theknife;
 
 import theknife.common.Richiesta;
@@ -5,7 +11,20 @@ import theknife.common.Risposta;
 import theknife.common.Utente;
 import java.io.*;
 
+/**
+ * 
+ * La classe TestComunicazione valida il protocollo di rete simulando lo scambio 
+ * di messaggi serializzati Richiesta e Risposta.
+ * Utilizza pipe di I/O locali in memoria (PipedInputStream e PipedOutputStream)
+ * per verificare il corretto instradamento e deserializzazione dei dati 
+ * senza la necessità di avviare connessioni socket su una rete reale.
+ */
 public class TestComunicazione {
+    /**
+     * Entry point per l'esecuzione del test sul protocollo.
+     * 
+     * @param args Argomenti da riga di comando.
+     */
     public static void main(String[] args) {
         System.out.println("--- Inizio Test Protocollo Comunicazione ---");
 
@@ -33,9 +52,6 @@ public class TestComunicazione {
                 // Il server crea una risposta con un oggetto Utente simulato
                 Utente uSimulato = new Utente("Mattia", "Polato", "m.polato", "hashed_pass", "01/01/1990", "Milano", "cliente", true);
                 Risposta res = new Risposta(true, "Login OK", uSimulato);
-                
-                // Invio risposta al client (riusando lo stream o un altro canale, qui simuliamo con la stessa pipe per brevità)
-                // Nota: In una rete vera avremmo canali IN e OUT distinti, qui facciamo un passaggio sequenziale.
                 
                 // Reset della pipe per simulare il ritorno
                 pis = new PipedInputStream();

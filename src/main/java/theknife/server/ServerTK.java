@@ -1,3 +1,9 @@
+/*
+ * Progetto: The Knife
+ * Autori:
+ * - Mattia Polato (Matricola: 757923, Sede: VA)
+ * - Andrea Luigi Mariani (Matricola: 757369, Sede: VA)
+ */
 package theknife.server;
 
 import java.io.IOException;
@@ -5,9 +11,25 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
+/**
+ * 
+ * ServerTK è la classe principale (entry point) per la componente backend 
+ * dell'applicazione "The Knife".
+ * All'avvio richiede interattivamente le credenziali del database PostgreSQL,
+ * inizializza il manager del database ed avvia un ServerSocket in ascolto su una 
+ * porta di rete prestabilita.
+ * Per ogni client connesso, delega l'elaborazione ad un thread concorrente 
+ * (ClientHandler).
+ */
 public class ServerTK {
+    /** Porta TCP su cui il server si mette in ascolto per accogliere le connessioni dei client. */
     private static final int PORT = 12346;
 
+    /**
+     * Metodo di ingresso principale per l'esecuzione del server backend.
+     * 
+     * @param args Argomenti passati da riga di comando (non utilizzati).
+     */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
@@ -30,13 +52,14 @@ public class ServerTK {
         // 2. Avvio del Server in ascolto
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("[OK] ServerTK in ascolto sulla porta " + PORT);
+            
             // 3. Ciclo infinito per accettare connessioni multiple
             while (true) {
-                // Il programma si "mette in pausa" qui finché un client non si connette
+                // Il programma si mette in attesa qui finché un client non si connette
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("[+] Nuovo client connesso da: " + clientSocket.getInetAddress().getHostAddress());
 
-                // 4. Gestione della concorrenza: creiamo un Thread per ogni utente
+                // 4. Gestione della concorrenza: creiamo un Thread per ogni utente connesso
                 ClientHandler handler = new ClientHandler(clientSocket, dbManager);
                 new Thread(handler).start();
             }
