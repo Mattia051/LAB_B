@@ -1,0 +1,8 @@
+=== Dati Autori del Progetto The Knife ===
+
+Cognome: [INSERISCI COGNOME]
+Nome: [INSERISCI NOME]
+Matricola: [INSERISCI MATRICOLA]
+Sede: [VA / CO] (Varese o Como)
+
+Repository GitHub di Progetto: [INSERISCI LINK GITHUB]
