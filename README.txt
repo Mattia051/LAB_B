@@ -10,8 +10,10 @@ JDBC (lato server).
 
 Tutte le scelte architetturali, i modelli di dati, i diagrammi UML 
 (classi, sequenza, casi d'uso) e lo schema ER sono documentati 
-dettagliatamente nella relazione di progetto:
-* RELAZIONE.md (nella root del progetto)
+dettagliatamente nella documentazione di progetto presente in:
+* doc/TechnicalManual.pdf (Manuale Tecnico dell'applicazione)
+* doc/UserManual.pdf (Manuale Utente dell'applicazione)
+
 
 ------------------------------------------------------------------------
 1. PREREQUISITI
